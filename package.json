@@ -1,0 +1,13 @@
+{
+  "name": "tibele-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
+    "dev:all": "bash -lc 'npm run dev:backend & npm run dev:frontend & wait'",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:all": "npm run build:backend && npm run build:frontend"
+  }
+}

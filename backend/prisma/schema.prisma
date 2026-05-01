@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum UserCategory {
+  student
+  professional
+  other
+}
+
+enum QuestionType {
+  QCM
+  QCD
+}
+
+enum TrainingMode {
+  QCM
+  QCD
+  all
+}
+
+enum TrainingSessionStatus {
+  in_progress
+  completed
+  abandoned
+}
+
+model User {
+  id                     String      @id @default(uuid())
+  legacyMongoId          String?     @unique
+  email                  String      @unique
+  passwordHash           String
+  fullName               String?
+  matricule              String      @unique
+  school                 String
+  studyYear              String?
+  major                  String
+  category               UserCategory? 
+  profession             String?
+  matriculeValidated     Boolean     @default(false)
+  isBanned               Boolean     @default(false)
+  role                   UserRole    @default(user)
+  isPaid                 Boolean     @default(false)
+  subscriptionExpiryDate DateTime?
+  refreshTokenHash       String?
+  refreshTokenExpiresAt  DateTime?
+  supabaseUserId         String?     @unique
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  topics           Topic[]
+  messages         Message[]
+  userAnswers      UserAnswer[]
+  trainingSessions TrainingSession[]
+  auditLogs        AuditLog[]
+
+  @@index([role])
+}
+
+model MedicalGroup {
+  id          String   @id @default(uuid())
+  legacyMongoId String? @unique
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Pathology {
+  id                   String     @id @default(uuid())
+  legacyMongoId        String?    @unique
+  title                String
+  slug                 String     @unique
+  shortDescription     String
+  definition           String
+  examinations         String
+  referentialDiagnosis String
+  onSiteTreatment      String
+  dischargeOrder       String
+  prevention           String
+  references           String?
+  imageUrl             String?
+  isFree               Boolean    @default(false)
+  isHidden             Boolean    @default(false)
+  groupe               String     @default("Autres")
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  topics        Topic[]
+  questions     Question[]
+  userAnswers   UserAnswer[]
+}
+
+model Topic {
+  id          String    @id @default(uuid())
+  legacyMongoId String? @unique
+  title       String
+  content     String
+  replyCount  Int       @default(0)
+  isPinned    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  pathologyId String?
+  pathology   Pathology? @relation(fields: [pathologyId], references: [id], onDelete: SetNull)
+  messages    Message[]
+
+  @@index([isPinned])
+  @@index([authorId])
+  @@index([pathologyId])
+}
+
+model Message {
+  id              String    @id @default(uuid())
+  legacyMongoId   String?   @unique
+  content         String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  topicId         String
+  topic           Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  authorId        String
+  author          User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentMessageId String?
+  parentMessage   Message?  @relation("MessageReplies", fields: [parentMessageId], references: [id], onDelete: Cascade)
+  replies         Message[] @relation("MessageReplies")
+
+  @@index([topicId])
+  @@index([authorId])
+  @@index([parentMessageId])
+}
+
+model Question {
+  id           String       @id @default(uuid())
+  legacyMongoId String?     @unique
+  questionText String
+  type         QuestionType
+  options      Json
+  explanation  String?
+  isHidden     Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  pathologyId  String
+  pathology    Pathology    @relation(fields: [pathologyId], references: [id], onDelete: Cascade)
+  userAnswers  UserAnswer[]
+
+  @@index([pathologyId])
+}
+
+model UserAnswer {
+  id         String    @id @default(uuid())
+  legacyMongoId String? @unique
+  answer     Json
+  isCorrect  Boolean
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  pathologyId String?
+  pathology  Pathology? @relation(fields: [pathologyId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, questionId])
+  @@index([userId])
+  @@index([questionId])
+  @@index([pathologyId])
+}
+
+model TrainingSession {
+  id              String                @id @default(uuid())
+  legacyMongoId   String?               @unique
+  mode            TrainingMode
+  limit           Int
+  status          TrainingSessionStatus
+  startedAt       DateTime
+  completedAt     DateTime?
+  totalQuestions  Int
+  answeredCount   Int
+  correctCount    Int
+  scorePercentage Float
+  durationSeconds Int?
+  questions       Json
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  userId          String
+  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model SiteSetting {
+  id                           String   @id @default(uuid())
+  legacyMongoId                String?  @unique
+  key                          String   @unique @default("global")
+  siteName                     String   @default("TIBELE Admin")
+  supportEmail                 String   @default("support@tibele.local")
+  maintenanceMode              Boolean  @default(false)
+  registrationsOpen            Boolean  @default(true)
+  messageMaintenance           String   @default("Maintenance en cours. Merci de revenir plus tard.")
+  primaryColor                 String   @default("#0b3b5a")
+  secondaryColor               String   @default("#2e8b57")
+  donationUrl                  String   @default("https://pay.djamo.com/o5y88")
+  donationPopupIntervalMinutes Int      @default(5)
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  legacyMongoId String? @unique
+  actorEmail String?
+  action     String
+  resource   String
+  resourceId String?
+  details    Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}
