@@ -1192,6 +1192,53 @@ textarea {
   }
 }
 
+/* ── Admin Gestion Cards ────────────────────────────── */
+.adm-gestion-overview {
+  padding: 2rem 0;
+}
+
+.adm-gestion-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.adm-gestion-card {
+  background: var(--white);
+  border: 1.5px solid var(--blue-100);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.adm-gestion-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(11, 59, 90, 0.13);
+  border-color: var(--blue-700);
+}
+
+.adm-gestion-card__title {
+  color: var(--blue-900);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.adm-gestion-card__description {
+  color: var(--blue-800);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.adm-gestion-card .adm-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 /* ══════════════════════════════════════════════════════════
    FORUM
 ══════════════════════════════════════════════════════════ */
@@ -2688,6 +2735,7 @@ textarea {
 /* Shell layout */
 .adm-shell {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: #f1f5f9;
   font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -2783,6 +2831,59 @@ textarea {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* Bottom Navigation Bar */
+.adm-bottombar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #0b3b5a;
+  color: #e2e8f0;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid rgba(255,255,255,.12);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.adm-bottombar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 1rem;
+  border-right: 1px solid rgba(255,255,255,.12);
+  flex-shrink: 0;
+}
+
+.adm-bottombar__logo {
+  width: 32px;
+  height: 32px;
+  background: #2e8b57;
+  color: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.adm-bottombar__name  { font-size: 0.875rem; font-weight: 700; color: #fff; margin: 0; }
+.adm-bottombar__sub   { font-size: 0.6rem; color: #94a3b8; margin: 0; text-transform: uppercase; letter-spacing: .06em; }
+
+.adm-bottombar__nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+}
+
+.adm-bottombar__nav li {
+  margin: 0;
+  flex-shrink: 0;
+}
+
 .adm-spinner {
   font-size: 0.8rem;
   color: #64748b;
@@ -3144,6 +3245,48 @@ textarea {
 .adm-accordion__summary::before { content: '▶ '; font-size: 0.65rem; }
 details[open] .adm-accordion__summary::before { content: '▼ '; }
 .adm-accordion form { padding: 1rem 1.25rem 1.25rem; }
+
+.adm-accordion__item {
+  border-top: 1px solid #e2e8f0;
+}
+.adm-accordion__item:first-child {
+  border-top: none;
+}
+.adm-accordion__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+  transition: background 0.2s ease;
+}
+.adm-accordion__header:hover {
+  background: #eff6ff;
+}
+.adm-accordion__header--open {
+  background: #e2e8f0;
+}
+.adm-accordion__panel {
+  padding: 1rem 1.25rem 1.5rem;
+  background: #ffffff;
+}
+.adm-section-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.adm-section-toolbar h3 {
+  margin: 0;
+  font-size: 1rem;
+}
 
 /* Settings form */
 .adm-settings-form { display: flex; flex-direction: column; gap: 0; }

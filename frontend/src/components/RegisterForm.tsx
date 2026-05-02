@@ -19,6 +19,14 @@ export const RegisterForm: React.FC = () => {
   const schools = ['INFAS', 'UFR Sciences Medicales', 'UFR Odonto-Stomatologie', 'UFR Sciences Pharmaceutiques', 'Autre etablissement'];
   const majors = ['Medecine', 'Pharmacie', 'Soins infirmiers', 'Maieutique', 'Odontostomatologie', 'Kinesitherapie', 'Autre filiere'];
   const studyYears = ['1', '2', '3', '4', '5', '6', '7', '8+'];
+  
+  const professions = {
+    student: ['Etudiant en Medecine', 'Etudiant en Pharmacie', 'Etudiant en Soins infirmiers', 'Etudiant en Maieutique', 'Etudiant en Odontostomatologie', 'Etudiant en Kinesitherapie', 'Autre etudiant'],
+    professional: ['Medecin generaliste', 'Medecin specialiste', 'Infirmier', 'Infirmiere', 'Sage-femme', 'Pharmacien', 'Pharmacienne', 'Gynécologue', 'Pediatre', 'Cardiologue', 'Dermatologue', 'Autre professionnel'],
+    other: ['Autre']
+  };
+
+  const getProfessions = (cat: typeof category) => professions[cat] || professions.other;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,14 +126,17 @@ export const RegisterForm: React.FC = () => {
 
       <div style={{ marginBottom: '1rem' }}>
         <label>Profession / Specialite:</label>
-        <input
-          type="text"
+        <select
           value={profession}
           onChange={(e) => setProfession(e.target.value)}
           required
-          placeholder="Ex: Medecine, Pharmacie, Soins infirmiers"
           style={{ width: '100%', padding: '0.5rem' }}
-        />
+        >
+          <option value="">Selectionnez votre profession</option>
+          {getProfessions(category).map((prof) => (
+            <option key={prof} value={prof}>{prof}</option>
+          ))}
+        </select>
       </div>
 
       <div style={{ marginBottom: '1rem' }}>

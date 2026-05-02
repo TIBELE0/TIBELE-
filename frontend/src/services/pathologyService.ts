@@ -225,6 +225,7 @@ export const adminService = {
   createGroup: (payload: { name: string; description?: string }) => api.post('/admin/groups', payload),
   updateGroup: (id: string, payload: { name?: string; description?: string }) => api.put(`/admin/groups/${id}`, payload),
   deleteGroup: (id: string) => api.delete(`/admin/groups/${id}`),
+  seedDemoData: () => api.post('/admin/seed-demo'),
 
   getAuditLogs: (page = 1, limit = 50, action = '') => api.get('/admin/audit/logs', { params: { page, limit, action: action || undefined } }),
 

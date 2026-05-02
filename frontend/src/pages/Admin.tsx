@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Bar,
   BarChart,
@@ -16,9 +17,6 @@ import {
 } from 'recharts';
 import { adminService, forumService, pathologyService, questionService } from '../services/pathologyService';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-
-type Tab = 'accueil' | 'analytics' | 'gestion' | 'forum' | 'comptes' | 'parametres' | 'audit';
-type GestionSubTab = 'groupes' | 'pathologies' | 'questions';
 
 interface GroupItem { _id: string; name: string; slug: string; description?: string }
 interface PathologyItem { _id: string; title: string; shortDescription: string; groupe: string; isFree: boolean; isHidden?: boolean }
@@ -114,8 +112,30 @@ const COLORS = ['#0b3b5a', '#1e6091', '#059669', '#f59e0b', '#ef4444', '#8b5cf6'
 
 export const Admin: React.FC = () => {
   const { refreshSettings } = useSiteSettings();
-  const [tab, setTab] = useState<Tab>('accueil');
-  const [gestionSubTab, setGestionSubTab] = useState<GestionSubTab>('groupes');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [seedingDemo, setSeedingDemo] = useState(false);
+
+  const tab = useMemo(() => {
+    const path = location.pathname;
+    if (path === '/admin/groupes') return 'gestion';
+    if (path === '/admin/pathologies') return 'gestion';
+    if (path === '/admin/questions') return 'gestion';
+    if (path === '/admin/analytics') return 'analytics';
+    if (path === '/admin/forum') return 'forum';
+    if (path === '/admin/comptes') return 'comptes';
+    if (path === '/admin/parametres') return 'parametres';
+    if (path === '/admin/audit') return 'audit';
+    return 'accueil';
+  }, [location.pathname]);
+
+  const openGestionSection = useMemo(() => {
+    const path = location.pathname;
+    if (path === '/admin/groupes') return 'groupes';
+    if (path === '/admin/pathologies') return 'pathologies';
+    if (path === '/admin/questions') return 'questions';
+    return 'groupes';
+  }, [location.pathname]);
 
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -164,6 +184,15 @@ export const Admin: React.FC = () => {
     }, {});
   }, [pathologies]);
 
+  const questionsByType = useMemo(() => {
+    return questions.reduce<Record<string, QuestionItem[]>>((acc, question) => {
+      const key = question.type || 'Autre';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(question);
+      return acc;
+    }, {});
+  }, [questions]);
+
   const [pathologyForm, setPathologyForm] = useState({
     title: '',
     shortDescription: '',
@@ -175,7 +204,7 @@ export const Admin: React.FC = () => {
     dischargeOrder: '',
     prevention: '',
     isFree: true,
-    isHidden: false,
+    isHidden: true,
   });
   const [editingPathologyId, setEditingPathologyId] = useState<string | null>(null);
 
@@ -184,7 +213,7 @@ export const Admin: React.FC = () => {
     questionText: '',
     type: 'QCM' as 'QCM' | 'QCD',
     options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }],
-    isHidden: false,
+    isHidden: true,
   });
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
@@ -197,7 +226,7 @@ export const Admin: React.FC = () => {
         adminService.getDashboard(),
         adminService.getAdvancedAnalytics(analyticsPeriod),
         adminService.getGroups(),
-        pathologyService.getAllPathologies(1, 200, true),
+        pathologyService.getAllPathologies(1, 500, true),
         questionService.getAdminQuestions(1, 200),
         forumService.getTopics(1, 200),
         adminService.getUsers(1, 200),
@@ -282,7 +311,7 @@ export const Admin: React.FC = () => {
       setPathologyForm({
         title: '', shortDescription: '', groupe: 'Autres', definition: '', examinations: '',
         referentialDiagnosis: '', onSiteTreatment: '', dischargeOrder: '', prevention: '', isFree: true,
-        isHidden: false,
+        isHidden: true,
       });
       await loadAll();
     } catch (e: any) {
@@ -325,7 +354,7 @@ export const Admin: React.FC = () => {
         questionText: '',
         type: 'QCM',
         options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }],
-        isHidden: false,
+        isHidden: true,
       });
       await loadAll();
     } catch (e: any) {
@@ -399,39 +428,6 @@ export const Admin: React.FC = () => {
 
   return (
     <main className="adm-shell">
-      <aside className="adm-sidebar">
-        <div className="adm-sidebar__brand">
-          <span className="adm-sidebar__logo">T</span>
-          <div>
-            <p className="adm-sidebar__name">TIBELE</p>
-            <p className="adm-sidebar__sub">Administration</p>
-          </div>
-        </div>
-
-        <ul className="adm-sidebar__nav">
-          {[
-            { id: 'accueil', label: 'Accueil', icon: '🏠' },
-            { id: 'analytics', label: 'Analytics', icon: '📊' },
-            { id: 'gestion', label: 'Gestion', icon: '🧩' },
-            { id: 'forum', label: 'Forum', icon: '💬' },
-            { id: 'comptes', label: 'Comptes', icon: '👥' },
-            { id: 'parametres', label: 'Paramètres', icon: '⚙️' },
-            { id: 'audit', label: 'Audit', icon: '📜' },
-          ].map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={`adm-nav-btn ${tab === item.id ? 'adm-nav-btn--active' : ''}`}
-                onClick={() => setTab(item.id as Tab)}
-              >
-                <span className="adm-nav-btn__icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </aside>
-
       <div className="adm-content">
         <header className="adm-topbar">
           <div>
@@ -598,17 +594,18 @@ export const Admin: React.FC = () => {
           )}
 
           {tab === 'gestion' && (
-            <>
-              <div className="adm-gestion-subnav">
-                <button type="button" className={`adm-btn ${gestionSubTab === 'groupes' ? 'adm-btn--ok' : ''}`} onClick={() => setGestionSubTab('groupes')}>Groupes</button>
-                <button type="button" className={`adm-btn ${gestionSubTab === 'pathologies' ? 'adm-btn--ok' : ''}`} onClick={() => setGestionSubTab('pathologies')}>Pathologies</button>
-                <button type="button" className={`adm-btn ${gestionSubTab === 'questions' ? 'adm-btn--ok' : ''}`} onClick={() => setGestionSubTab('questions')}>Questions</button>
-              </div>
-
-              {gestionSubTab === 'groupes' && (
-                <div className="adm-tables-row">
-                  <section className="adm-table-section">
-                    <h3 className="adm-section-title">Créer / modifier un groupe</h3>
+            <div className="adm-accordion">
+              <div className="adm-accordion__item">
+                <button type="button" className={`adm-accordion__header ${openGestionSection === 'groupes' ? 'adm-accordion__header--open' : ''}`} onClick={() => navigate('/admin/groupes')}>
+                  <span>Groupe</span>
+                  <span>{openGestionSection === 'groupes' ? '−' : '+'}</span>
+                </button>
+                {openGestionSection === 'groupes' && (
+                  <div className="adm-accordion__panel">
+                    <div className="adm-section-toolbar">
+                      <h3 className="adm-section-title">Groupes</h3>
+                      <button type="button" className="adm-btn adm-btn--ok" onClick={() => navigate('/admin/pathologies')}>Voir Pathologies</button>
+                    </div>
                     <form onSubmit={createOrUpdateGroup} className="adm-form-row">
                       <label>
                         Nom du groupe
@@ -634,14 +631,35 @@ export const Admin: React.FC = () => {
                         </tbody>
                       </table>
                     </div>
-                  </section>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
-              {gestionSubTab === 'pathologies' && (
-                <div className="adm-tables-row">
-                  <section className="adm-table-section">
-                    <h3 className="adm-section-title">CRUD Pathologies</h3>
+              <div className="adm-accordion__item">
+                <button type="button" className={`adm-accordion__header ${openGestionSection === 'pathologies' ? 'adm-accordion__header--open' : ''}`} onClick={() => navigate('/admin/pathologies')}>
+                  <span>Pathologies</span>
+                  <span>{openGestionSection === 'pathologies' ? '−' : '+'}</span>
+                </button>
+                {openGestionSection === 'pathologies' && (
+                  <div className="adm-accordion__panel">
+                    <div className="adm-section-toolbar">
+                      <h3 className="adm-section-title">Pathologies</h3>
+                      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button type="button" className="adm-btn adm-btn--ok" onClick={() => navigate('/admin/questions')}>Voir Questions</button>
+                        <button type="button" className="adm-btn adm-btn--warn" onClick={async () => {
+                          try {
+                            setSeedingDemo(true);
+                            await adminService.seedDemoData();
+                            ok('300 pathologies et 100 exercices ajoutés.');
+                            await loadAll();
+                          } catch (e: any) {
+                            ko(e?.response?.data?.message || 'Échec de la génération des données.');
+                          } finally {
+                            setSeedingDemo(false);
+                          }
+                        }} disabled={seedingDemo}>{seedingDemo ? 'Génération en cours…' : 'Générer 300 pathologies et 100 exercices'}</button>
+                      </div>
+                    </div>
                     <form onSubmit={createOrUpdatePathology} className="adm-form-grid adm-form-grid--cols2">
                       <label>Titre<input value={pathologyForm.title} onChange={(e) => setPathologyForm((p) => ({ ...p, title: e.target.value }))} required /></label>
                       <label>Résumé<input value={pathologyForm.shortDescription} onChange={(e) => setPathologyForm((p) => ({ ...p, shortDescription: e.target.value }))} required /></label>
@@ -661,7 +679,7 @@ export const Admin: React.FC = () => {
                       <label>Prévention<textarea value={pathologyForm.prevention} onChange={(e) => setPathologyForm((p) => ({ ...p, prevention: e.target.value }))} required /></label>
                       <div className="adm-form-actions">
                         <button type="submit" className="adm-btn adm-btn--ok">{editingPathologyId ? 'Mettre à jour' : 'Créer'}</button>
-                        {editingPathologyId && <button type="button" className="adm-btn" onClick={() => { setEditingPathologyId(null); setPathologyForm({ title: '', shortDescription: '', groupe: 'Autres', definition: '', examinations: '', referentialDiagnosis: '', onSiteTreatment: '', dischargeOrder: '', prevention: '', isFree: true, isHidden: false }); }}>Annuler</button>}
+                        {editingPathologyId && <button type="button" className="adm-btn" onClick={() => { setEditingPathologyId(null); setPathologyForm({ title: '', shortDescription: '', groupe: 'Autres', definition: '', examinations: '', referentialDiagnosis: '', onSiteTreatment: '', dischargeOrder: '', prevention: '', isFree: true, isHidden: true }); }}>Annuler</button>}
                       </div>
                     </form>
 
@@ -678,25 +696,32 @@ export const Admin: React.FC = () => {
                                   <td><span className={`adm-badge ${p.isFree ? 'adm-badge--green' : 'adm-badge--yellow'}`}>{p.isFree ? 'Libre' : 'Premium'}</span></td>
                                   <td>{p.isHidden ? 'Oui' : 'Non'}</td>
                                   <td>
-                                <button type="button" className="adm-btn" onClick={() => { setEditingPathologyId(p._id); setPathologyForm((prev) => ({ ...prev, title: p.title, shortDescription: p.shortDescription, groupe: p.groupe, isFree: p.isFree, isHidden: !!p.isHidden })); }}>Éditer</button>
-                                <button type="button" className="adm-btn adm-btn--danger" style={{ marginLeft: '0.5rem' }} onClick={() => deletePathology(p._id)}>Supprimer</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                                    <button type="button" className="adm-btn" onClick={() => { setEditingPathologyId(p._id); setPathologyForm((prev) => ({ ...prev, title: p.title, shortDescription: p.shortDescription, groupe: p.groupe, isFree: p.isFree, isHidden: !!p.isHidden })); }}>Éditer</button>
+                                    <button type="button" className="adm-btn adm-btn--danger" style={{ marginLeft: '0.5rem' }} onClick={() => deletePathology(p._id)}>Supprimer</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                  </section>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
 
-              {gestionSubTab === 'questions' && (
-                <div className="adm-tables-row">
-                  <section className="adm-table-section">
-                    <h3 className="adm-section-title">CRUD Questions QCM / QCD</h3>
-                    <form onSubmit={createOrUpdateQuestion} className="adm-form-grid">
+              <div className="adm-accordion__item">
+                <button type="button" className={`adm-accordion__header ${openGestionSection === 'questions' ? 'adm-accordion__header--open' : ''}`} onClick={() => navigate('/admin/questions')}>
+                  <span>Questions</span>
+                  <span>{openGestionSection === 'questions' ? '−' : '+'}</span>
+                </button>
+                {openGestionSection === 'questions' && (
+                  <div className="adm-accordion__panel">
+                    <div className="adm-section-toolbar">
+                      <h3 className="adm-section-title">Questions</h3>
+                      <button type="button" className="adm-btn adm-btn--ok" onClick={() => navigate('/admin/groupes')}>Voir Groupes</button>
+                    </div>
+                    <form onSubmit={createOrUpdateQuestion} className="adm-form-grid adm-form-grid--cols2">
                       <label>Pathologie
                         <select value={questionForm.pathology} onChange={(e) => setQuestionForm((q) => ({ ...q, pathology: e.target.value }))} required>
                           <option value="">Sélectionner</option>
@@ -720,38 +745,42 @@ export const Admin: React.FC = () => {
                       </div>
                     </form>
 
-                    <div className="adm-table-wrap" style={{ marginTop: '1rem' }}>
-                      <table className="adm-table">
-                        <thead><tr><th>Question</th><th>Type</th><th>Pathologie</th><th>Masquée</th><th>Actions</th></tr></thead>
-                        <tbody>
-                          {questions.map((q) => (
-                            <tr key={q._id}>
-                              <td>{q.questionText}</td>
-                              <td>{q.type}</td>
-                              <td>{q.pathology?.title || '—'}</td>
-                              <td>{q.isHidden ? 'Oui' : 'Non'}</td>
-                              <td>
-                                <button type="button" className="adm-btn" onClick={() => {
-                                  setEditingQuestionId(q._id);
-                                  setQuestionForm({
-                                    pathology: q.pathology?._id || '',
-                                    questionText: q.questionText,
-                                    type: q.type,
-                                    options: q.options?.length === 2 ? q.options : [{ text: '', isCorrect: true }, { text: '', isCorrect: false }],
-                                    isHidden: !!q.isHidden,
-                                  });
-                                }}>Éditer</button>
-                                <button type="button" className="adm-btn adm-btn--danger" style={{ marginLeft: '0.5rem' }} onClick={() => deleteQuestion(q._id)}>Supprimer</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </section>
-                </div>
-              )}
-            </>
+                    {Object.entries(questionsByType).map(([type, typeQuestions]) => (
+                      <div key={type} style={{ marginTop: '1.5rem' }}>
+                        <h4 style={{ margin: '0 0 0.75rem' }}>{type}</h4>
+                        <div className="adm-table-wrap">
+                          <table className="adm-table">
+                            <thead><tr><th>Question</th><th>Pathologie</th><th>Masquée</th><th>Actions</th></tr></thead>
+                            <tbody>
+                              {typeQuestions.map((q) => (
+                                <tr key={q._id}>
+                                  <td>{q.questionText}</td>
+                                  <td>{q.pathology?.title || '—'}</td>
+                                  <td>{q.isHidden ? 'Oui' : 'Non'}</td>
+                                  <td>
+                                    <button type="button" className="adm-btn" onClick={() => {
+                                      setEditingQuestionId(q._id);
+                                      setQuestionForm({
+                                        pathology: q.pathology?._id || '',
+                                        questionText: q.questionText,
+                                        type: q.type,
+                                        options: q.options?.length === 2 ? q.options : [{ text: '', isCorrect: true }, { text: '', isCorrect: false }],
+                                        isHidden: !!q.isHidden,
+                                      });
+                                    }}>Éditer</button>
+                                    <button type="button" className="adm-btn adm-btn--danger" style={{ marginLeft: '0.5rem' }} onClick={() => deleteQuestion(q._id)}>Supprimer</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {tab === 'forum' && (

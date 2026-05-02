@@ -1,9 +1,10 @@
 import { Response } from 'express';
-import { Prisma } from '@prisma/client';
+import { Prisma, QuestionType } from '@prisma/client';
 import prisma from '../config/prisma';
 import { AuthRequest } from '../middleware/auth';
 import { forumService } from '../services/forumService';
 import { createSlug } from '../utils/validators';
+import { PATHOLOGIES_CATALOG } from '../data/pathologiesCatalog';
 
 const sanitizeUser = (user: any) => {
   const { passwordHash, refreshTokenHash, refreshTokenExpiresAt, ...safe } = user;
@@ -630,6 +631,112 @@ export const deleteAdminGroup = async (req: AuthRequest, res: Response): Promise
     res.status(200).json({ message: 'Groupe supprime. Les pathologies associees ont ete basculees dans Autres.' });
   } catch (error: any) {
     res.status(400).json({ message: error.message || 'Suppression groupe impossible' });
+  }
+};
+
+export const seedAdminDemoData = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const groupNames = Array.from(new Set(PATHOLOGIES_CATALOG.map((pathology) => (pathology.groupe || 'Autres').trim() || 'Autres')));
+
+    await prisma.$transaction(async (tx) => {
+      await Promise.all(groupNames.map((name) => {
+        const slug = createSlug(name);
+        return tx.medicalGroup.upsert({
+          where: { slug },
+          update: { name },
+          create: { name, slug },
+        });
+      }));
+
+      await Promise.all(PATHOLOGIES_CATALOG.map((pathology) => {
+        const slug = createSlug(pathology.title);
+        return tx.pathology.upsert({
+          where: { slug },
+          update: {
+            title: pathology.title,
+            shortDescription: pathology.shortDescription,
+            definition: pathology.definition,
+            examinations: pathology.examinations,
+            referentialDiagnosis: pathology.referentialDiagnosis,
+            onSiteTreatment: pathology.onSiteTreatment,
+            dischargeOrder: pathology.dischargeOrder,
+            prevention: pathology.prevention,
+            references: pathology.references,
+            imageUrl: pathology.imageUrl,
+            isFree: pathology.isFree,
+            isHidden: true,
+            groupe: pathology.groupe || 'Autres',
+          },
+          create: {
+            title: pathology.title,
+            slug,
+            shortDescription: pathology.shortDescription,
+            definition: pathology.definition,
+            examinations: pathology.examinations,
+            referentialDiagnosis: pathology.referentialDiagnosis,
+            onSiteTreatment: pathology.onSiteTreatment,
+            dischargeOrder: pathology.dischargeOrder,
+            prevention: pathology.prevention,
+            references: pathology.references,
+            imageUrl: pathology.imageUrl,
+            isFree: pathology.isFree,
+            isHidden: true,
+            groupe: pathology.groupe || 'Autres',
+          },
+        });
+      }));
+    });
+
+    const allPathologies = await prisma.pathology.findMany({ select: { id: true, title: true } });
+    const existingQuestionCount = await prisma.question.count();
+    const targetQuestionCount = 100;
+    const questionsToCreate = Math.max(0, targetQuestionCount - existingQuestionCount);
+    const questionTypes: QuestionType[] = ['QCM', 'QCD'];
+    let createdQuestions = 0;
+
+    for (let i = 0; i < questionsToCreate; i += 1) {
+      const pathology = allPathologies[i % allPathologies.length];
+      const type = questionTypes[i % questionTypes.length];
+      const questionText = `Quel est le critère principal à vérifier pour la pathologie "${pathology.title}" ?`;
+      const options = type === 'QCM'
+        ? [
+          { text: 'Réponse correcte', isCorrect: true },
+          { text: 'Réponse incorrecte 1', isCorrect: false },
+          { text: 'Réponse incorrecte 2', isCorrect: false },
+          { text: 'Réponse incorrecte 3', isCorrect: false },
+        ]
+        : [
+          { text: 'Vrai', isCorrect: true },
+          { text: 'Faux', isCorrect: false },
+        ];
+
+      await prisma.question.create({
+        data: {
+          pathologyId: pathology.id,
+          questionText,
+          type,
+          options: options as unknown as Prisma.JsonArray,
+          isHidden: true,
+          explanation: `Question de démonstration pour ${pathology.title}`,
+        },
+      });
+      createdQuestions += 1;
+    }
+
+    await logAdminAction(req, 'seed_demo_data', 'admin_seed', undefined, {
+      groups: groupNames.length,
+      pathologies: PATHOLOGIES_CATALOG.length,
+      questionsCreated: createdQuestions,
+    });
+
+    res.status(200).json({
+      message: 'Seed de démonstration créé.',
+      groups: groupNames.length,
+      pathologies: PATHOLOGIES_CATALOG.length,
+      questionsCreated: createdQuestions,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || 'Erreur lors de la génération des données de démonstration' });
   }
 };
 

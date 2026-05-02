@@ -18,6 +18,7 @@ import {
 	createAdminGroup,
 	updateAdminGroup,
 	deleteAdminGroup,
+	seedAdminDemoData,
 	setTopicPinned,
 	getAdminAuditLogs,
 } from '../controllers/adminController';
@@ -45,6 +46,7 @@ router.get('/groups', authenticateToken, authorizeAdmin, getAdminGroups);
 router.post('/groups', authenticateToken, authorizeAdmin, createAdminGroup);
 router.put('/groups/:id', authenticateToken, authorizeAdmin, updateAdminGroup);
 router.delete('/groups/:id', authenticateToken, authorizeAdmin, deleteAdminGroup);
+router.post('/seed-demo', authenticateToken, authorizeAdmin, seedAdminDemoData);
 
 router.get('/audit/logs', authenticateToken, authorizeAdmin, getAdminAuditLogs);
 

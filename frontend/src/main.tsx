@@ -16,6 +16,10 @@ import { Subscription } from './pages/Subscription';
 import { Profile } from './pages/Profile';
 import { QCMPage } from './pages/QCMPage';
 import { Admin } from './pages/Admin';
+import { AdminGestion } from './pages/AdminGestion';
+import { AdminGroupes } from './pages/AdminGroupes';
+import { AdminPathologiesList } from './pages/AdminPathologiesList';
+import { AdminQuestionsList } from './pages/AdminQuestionsList';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { About } from './pages/About';
@@ -128,7 +132,17 @@ const AppLayout: React.FC = () => {
         <Route path="/profile" element={<ProtectedRoute requiredRole="user"><Profile /></ProtectedRoute>} />
         <Route path="/qcm/:pathologyId" element={<ProtectedRoute requiredRole="user"><QCMPage /></ProtectedRoute>} />
 
-        <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin" element={<Navigate to="/admin/accueil" replace />} />
+        <Route path="/admin/accueil" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin/pathologies" element={<ProtectedRoute requiredRole="admin"><AdminGestion /></ProtectedRoute>} />
+        <Route path="/admin/groupes" element={<ProtectedRoute requiredRole="admin"><AdminGroupes /></ProtectedRoute>} />
+        <Route path="/admin/pathologies/list" element={<ProtectedRoute requiredRole="admin"><AdminPathologiesList /></ProtectedRoute>} />
+        <Route path="/admin/questions/list" element={<ProtectedRoute requiredRole="admin"><AdminQuestionsList /></ProtectedRoute>} />
+        <Route path="/admin/forum" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin/comptes" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin/parametres" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
+        <Route path="/admin/audit" element={<ProtectedRoute requiredRole="admin"><Admin /></ProtectedRoute>} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

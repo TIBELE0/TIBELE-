@@ -35,7 +35,15 @@ export const Header: React.FC = () => {
         <div id="site-menu" className={`menu-shell ${isMenuOpen ? 'open' : ''}`}>
           <ul className="menu-links">
             {user?.role === 'admin' && (
-              <li><Link to="/admin" onClick={closeMenu}>Dashboard admin</Link></li>
+              <>
+                <li><Link to="/admin/accueil" onClick={closeMenu}>Accueil</Link></li>
+                <li><Link to="/admin/analytics" onClick={closeMenu}>Analytics</Link></li>
+                <li><Link to="/admin/pathologies" onClick={closeMenu}>Gestion</Link></li>
+                <li><Link to="/admin/forum" onClick={closeMenu}>Forum</Link></li>
+                <li><Link to="/admin/comptes" onClick={closeMenu}>Comptes</Link></li>
+                <li><Link to="/admin/parametres" onClick={closeMenu}>Paramètres</Link></li>
+                <li><Link to="/admin/audit" onClick={closeMenu}>Audit</Link></li>
+              </>
             )}
 
             {(!user || user.role === 'user') && (
