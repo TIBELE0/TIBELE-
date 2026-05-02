@@ -95,6 +95,26 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     }
   });
 
+  app.get('/api/stats/public', async (_req, res) => {
+    try {
+      const [pathologiesCount, questionsCount, usersCount, topicsCount] = await Promise.all([
+        prisma.pathology.count(),
+        prisma.question.count(),
+        prisma.user.count(),
+        prisma.topic.count(),
+      ]);
+
+      res.status(200).json({
+        pathologies: pathologiesCount,
+        questions: questionsCount,
+        users: usersCount,
+        topics: topicsCount,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || 'Erreur chargement statistiques publiques' });
+    }
+  });
+
   app.get('/api/ready', (_req, res) => {
     const postgresConnected = true;
     const configOk = startupReport.ok;

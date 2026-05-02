@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { siteSettingsService } from '../services/pathologyService';
 
 const FeatureIcon: React.FC<{ type: 'book' | 'brain' | 'forum' | 'offline' }> = ({ type }) => {
   if (type === 'book') {
@@ -37,28 +38,48 @@ const FeatureIcon: React.FC<{ type: 'book' | 'brain' | 'forum' | 'offline' }> = 
 export const Home: React.FC = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [activePathology, setActivePathology] = useState(0);
+  const [activeHero, setActiveHero] = useState(0);
+  const [stats, setStats] = useState({ pathologies: 0, questions: 0, users: 0, topics: 0 });
   const { user } = useAuth();
+
+  const heroSlides = [
+    {
+      image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1900&q=80',
+      subtitle: 'Une équipe médicale africaine réunie pour accompagner votre réussite.',
+      alt: 'Equipe médicale africaine sur fond bleu',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=1900&q=80',
+      subtitle: 'Une future professionnelle de santé avec documents et sac, inspirant confiance.',
+      alt: 'Jeune dame africaine en blouse blanche avec documents et sac',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=1900&q=80',
+      subtitle: 'Un jeune praticien en consultation, concentré sur son patient.',
+      alt: 'Jeune homme africain en consultation dans un bureau',
+    },
+  ];
 
   const features = [
     {
       icon: 'book' as const,
       title: 'Fiches pathologies officielles',
-      text: 'Recommandations officielles et fiches a jour.',
+      text: 'Contenu concis et valide pour revision rapide.',
     },
     {
       icon: 'brain' as const,
       title: 'Auto-evaluation QCM/QCD',
-      text: 'Quiz rapides et suivi de progression.',
+      text: 'Quiz courts pour tester vos connaissances.',
     },
     {
       icon: 'forum' as const,
       title: 'Forum d entraide entre pairs',
-      text: 'Echanges utiles entre etudiants et praticiens.',
+      text: 'Echanges pratiques entre etudiants et soignants.',
     },
     {
       icon: 'offline' as const,
-      title: 'Acces hors ligne bientot',
-      text: 'Mode hors ligne disponible tres bientot.',
+      title: 'Soutien solidaire',
+      text: 'Les dons aident a garder la plateforme gratuite.',
     },
   ];
 
@@ -139,23 +160,52 @@ export const Home: React.FC = () => {
     return () => clearInterval(timer);
   }, [pathologies.length]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveHero((prev) => (prev + 1) % heroSlides.length);
+    }, 4200);
+
+    return () => clearInterval(timer);
+  }, [heroSlides.length]);
+
+  useEffect(() => {
+    void siteSettingsService.getPublicStats()
+      .then((response) => {
+        setStats(response.data ?? {
+          pathologies: 0,
+          questions: 0,
+          users: 0,
+          topics: 0,
+        });
+      })
+      .catch(() => {
+        setStats({ pathologies: 0, questions: 0, users: 0, topics: 0 });
+      });
+  }, []);
+
   return (
     <main className="landing">
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-overlay" />
-        <img
-          className="hero-bg"
-          src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1900&q=80"
-          alt="Jeune professionnelle de sante souriante en blouse blanche"
-          loading="lazy"
-        />
+        <div className="hero-slider">
+          <div className="hero-track" style={{ transform: `translateX(-${activeHero * 100}%)` }}>
+            {heroSlides.map((slide, index) => (
+              <div className="hero-slide" key={index}>
+                <img
+                  className="hero-bg"
+                  src={slide.image}
+                  alt={slide.alt || `Slide ${index + 1} TIBELE`}
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="hero-content container hero-layout">
           <div className="hero-main">
             <p className="badge">Mise a jour cette semaine : 12 nouvelles pathologies</p>
             <h1 id="hero-title">TIBELE - La reference pedagogique des soignants ivoiriens</h1>
-            <p>
-              Des fiches pathologies completes, des QCM interactifs et un forum d entraide.
-            </p>
+            <p>{heroSlides[activeHero].subtitle}</p>
             <Link to="/pathologies" className="hero-cta-card">
               <span className="hero-cta-title">Explorer toutes les pathologies</span>
               <span className="hero-cta-sub">Acceder aux contenus pedagogiques complets</span>
@@ -222,10 +272,10 @@ export const Home: React.FC = () => {
           <h2>TIBELE EN CHIFFRE</h2>
         </div>
         <div className="stats-grid">
-          <article><h3>+500</h3><p>pathologies referencees</p></article>
-          <article><h3>+2000</h3><p>QCM et QCD disponibles</p></article>
-          <article><h3>+10 000</h3><p>etudiants utilisateurs</p></article>
-          <article><h3>24/7</h3><p>acces prioritaire abonnes</p></article>
+          <article><h3>+{stats.pathologies}</h3><p>pathologies référencees</p></article>
+          <article><h3>+{stats.questions}</h3><p>questions disponibles</p></article>
+          <article><h3>+{stats.users}</h3><p>utilisateurs enregistrés</p></article>
+          <article><h3>+{stats.topics}</h3><p>sujets de discussion</p></article>
         </div>
       </section>
 
@@ -349,19 +399,19 @@ export const Home: React.FC = () => {
         <div className="faq-list">
           <details>
             <summary>Comment creer un compte ?</summary>
-            <p>Cliquez sur Connexion / Inscription puis remplissez le formulaire en moins d une minute.</p>
+            <p>Cliquez sur Inscription, remplissez vos informations et validez votre email.</p>
           </details>
           <details>
-            <summary>Puis-je resilier mon abonnement ?</summary>
-            <p>Oui. Vous pouvez rester sur la formule gratuite a tout moment depuis votre espace personnel.</p>
+            <summary>Le contenu est-il valide ?</summary>
+            <p>Oui. Les fiches et QCM sont mis a jour selon les recommandations pedagogiques.</p>
           </details>
           <details>
-            <summary>Les fiches sont-elles a jour ?</summary>
-            <p>Nos contenus sont revises regulierement selon les recommandations pedagogiques et pratiques cliniques.</p>
+            <summary>Est-ce accessible sur smartphone ?</summary>
+            <p>Oui. L interface est responsive et adaptee aux mobiles et tablettes.</p>
           </details>
           <details>
-            <summary>Le site est-il accessible sur mobile ?</summary>
-            <p>Oui. L interface est responsive et optimisee pour smartphone et tablette.</p>
+            <summary>Comment soutenir TIBELE ?</summary>
+            <p>Les dons permettent de garder TIBELE gratuit pour un maximum d etudiants.</p>
           </details>
         </div>
       </section>

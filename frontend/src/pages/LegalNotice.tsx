@@ -7,30 +7,55 @@ export const LegalNotice: React.FC = () => {
   return (
     <main className="simple-page">
       <section className="container quiz-setup">
-        <div className="section-shell" style={{ maxWidth: '900px', margin: '1rem auto 0' }}>
-          <h1 className="module-main-title">Mentions legales</h1>
+        <div className="section-shell" style={{ maxWidth: '940px', margin: '1.5rem auto' }}>
+          <h1 className="module-main-title">Mentions légales</h1>
           <p className="module-main-subtitle">
-            Informations legales relatives a l editeur de la plateforme et aux services proposes.
+            Informations légales sur l’éditeur, l’hébergement et les conditions d’utilisation de la plateforme TIBELE.
           </p>
 
-          <div className="section-shell" style={{ marginTop: '0.8rem' }}>
-            <h2 style={{ marginTop: 0 }}>Editeur</h2>
-            <p>Nom du service: {settings.siteName || 'TIBELE'}</p>
-            <p>Contact: {settings.supportEmail || 'support@tibele.local'}</p>
-
-            <h2>Hebergement</h2>
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2 style={{ marginTop: 0 }}>Éditeur</h2>
+            <p>Nom du service : <strong>{settings.siteName || 'TIBELE'}</strong></p>
+            <p>Adresse email : <strong>{settings.supportEmail || 'support@tibele.local'}</strong></p>
             <p>
-              L hebergement est assure par une infrastructure cloud choisie par l equipe exploitante.
+              TIBELE est une plateforme numérique destinée à l’apprentissage et à la révision des sciences de la santé.
             </p>
+          </div>
 
-            <h2>Propriete intellectuelle</h2>
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Hébergement</h2>
             <p>
-              Les contenus, marques, logos et elements graphiques de la plateforme sont proteges par les regles applicables.
+              La plateforme est hébergée sur une infrastructure cloud sécurisée, choisie pour garantir une disponibilité continue et des performances stables.
             </p>
-
-            <h2>Responsabilite</h2>
             <p>
-              L editeur met en oeuvre des moyens raisonnables pour assurer la disponibilite du service, sans garantie d absence totale d interruption.
+              Le prestataire d’hébergement est responsable de la gestion technique des serveurs, mais l’éditeur reste responsable du contenu diffusé.
+            </p>
+          </div>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Propriété intellectuelle</h2>
+            <p>
+              Tous les contenus, marques, logos, illustrations et éléments graphiques présents sur le site sont protégés par le droit de la propriété intellectuelle.
+            </p>
+            <p>
+              Toute reproduction, représentation ou diffusion, totale ou partielle, est strictement interdite sans autorisation préalable de l’éditeur.
+            </p>
+          </div>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Responsabilité</h2>
+            <p>
+              TIBELE met en œuvre des moyens raisonnables pour assurer la continuité du service, mais n’offre aucune garantie d’exhaustivité ou d’absence d’interruption.
+            </p>
+            <p>
+              Les informations publiées ont un objectif pédagogique et ne remplacent pas un avis médical professionnel.
+            </p>
+          </div>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Accès et disponibilité</h2>
+            <p>
+              L’accès au site peut être suspendu temporairement en cas de maintenance, mise à jour ou incident technique.
             </p>
           </div>
         </div>

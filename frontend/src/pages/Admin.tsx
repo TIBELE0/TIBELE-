@@ -148,9 +148,26 @@ export const Admin: React.FC = () => {
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [topics, setTopics] = useState<TopicItem[]>([]);
   const [users, setUsers] = useState<UserItem[]>([]);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userCategoryFilter, setUserCategoryFilter] = useState('');
+  const filteredUsers = useMemo(() => {
+    const search = userSearchTerm.trim().toLowerCase();
+    return users.filter((user) => {
+      const matchesSearch = !search || [
+        user.email,
+        user.fullName || '',
+        user.matricule || '',
+        user.profession || '',
+        user.major || '',
+        user.school || '',
+      ].some((field) => field.toLowerCase().includes(search));
+      const matchesCategory = !userCategoryFilter || (user.category || 'other') === userCategoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [users, userSearchTerm, userCategoryFilter]);
   const usersByCategoryAndSubgroup = useMemo(() => {
     const grouped: Record<string, Record<string, UserItem[]>> = {};
-    users.forEach((user) => {
+    filteredUsers.forEach((user) => {
       const category = user.category || 'other';
       const subgroup = category === 'student'
         ? user.school || 'Non renseigné'
@@ -167,7 +184,7 @@ export const Admin: React.FC = () => {
       grouped[category][subgroup].push(user);
     });
     return grouped;
-  }, [users]);
+  }, [filteredUsers]);
   const [settings, setSettings] = useState<SiteSettings>(EMPTY_SETTINGS);
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
 
@@ -813,14 +830,42 @@ export const Admin: React.FC = () => {
           {tab === 'comptes' && (
             <div className="adm-tables-row">
               <section className="adm-table-section">
-                <h3 className="adm-section-title">Gestion des utilisateurs</h3>
-                <div className="adm-table-wrap">
-                  {Object.entries(usersByCategoryAndSubgroup).map(([category, subgroups]) => (
-                    <div key={category} style={{ marginBottom: '1.5rem' }}>
-                      <h4 style={{ margin: '0 0 0.75rem' }}>{category === 'student' ? 'Étudiants' : category === 'professional' ? 'Travailleurs de santé' : 'Autres utilisateurs'}</h4>
-                      {Object.entries(subgroups).map(([subgroup, subgroupUsers]) => (
-                        <div key={subgroup} style={{ marginBottom: '1rem' }}>
-                          <h5 style={{ margin: '0 0 0.5rem', fontSize: '0.95rem', color: '#334155' }}>{subgroup}</h5>
+                <h3 className="adm-section-title">Gestion des utilisateurs ({filteredUsers.length})</h3>
+                <div className="adm-global-filters">
+                  <label className="adm-global-filters__label">
+                    Rechercher
+                    <input
+                      type="search"
+                      className="adm-search"
+                      placeholder="Email, nom, matricule..."
+                      value={userSearchTerm}
+                      onChange={(e) => setUserSearchTerm(e.target.value)}
+                    />
+                  </label>
+                  <label className="adm-global-filters__label">
+                    Catégorie
+                    <select
+                      className="adm-select"
+                      value={userCategoryFilter}
+                      onChange={(e) => setUserCategoryFilter(e.target.value)}
+                    >
+                      <option value="">Toutes</option>
+                      <option value="student">Étudiants</option>
+                      <option value="professional">Professionnels</option>
+                      <option value="other">Autres</option>
+                    </select>
+                  </label>
+                </div>
+                {Object.entries(usersByCategoryAndSubgroup).length === 0 ? (
+                  <div className="adm-alert adm-alert--warn">Aucun utilisateur ne correspond aux filtres.</div>
+                ) : (
+                  Object.entries(usersByCategoryAndSubgroup).map(([category, subgroups]) =>
+                    Object.entries(subgroups).map(([subgroup, subgroupUsers]) => (
+                      <details key={`${category}-${subgroup}`} className="adm-accordion" open>
+                        <summary className="adm-accordion__summary">
+                          {subgroup} ({subgroupUsers.length}) - {category === 'student' ? 'Étudiants' : category === 'professional' ? 'Travailleurs de santé' : 'Autres utilisateurs'}
+                        </summary>
+                        <div className="adm-accordion__panel">
                           <table className="adm-table">
                             <thead>
                               <tr>
@@ -850,10 +895,10 @@ export const Admin: React.FC = () => {
                             </tbody>
                           </table>
                         </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
+                      </details>
+                    ))
+                  ).flat()
+                )}
               </section>
             </div>
           )}

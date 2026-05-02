@@ -176,6 +176,7 @@ export interface GlobalSiteSettings {
 
 export const siteSettingsService = {
   getPublicSettings: () => api.get('/settings/public'),
+  getPublicStats: () => api.get('/stats/public'),
 };
 
 export const adminService = {

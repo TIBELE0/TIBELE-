@@ -9,10 +9,10 @@ export const Subscription: React.FC = () => {
   return (
     <main className="simple-page">
       <section className="container quiz-setup">
-        <div className="section-shell" style={{ maxWidth: '760px', margin: '1rem auto 0' }}>
+        <div className="section-shell" style={{ maxWidth: '920px', margin: '1.5rem auto' }}>
           <h1 className="module-main-title">Soutenir TIBELE</h1>
           <p className="module-main-subtitle">
-            TIBELE est gratuit pour tous les étudiants en sciences de la sante. Votre soutien permet de maintenir un outil fiable, utile et durable.
+            TIBELE reste gratuit pour les étudiants en santé. Votre soutien est essentiel pour maintenir la qualité, la continuité et l’innovation du service.
           </p>
 
           <nav className="breadcrumb" aria-label="Fil d'Ariane">
@@ -21,44 +21,55 @@ export const Subscription: React.FC = () => {
             <span aria-current="page">Soutenir</span>
           </nav>
 
-          <div className="section-shell" style={{ marginTop: '0.8rem' }}>
-            <h2 style={{ marginTop: 0 }}>Pourquoi votre don compte vraiment</h2>
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2 style={{ marginTop: 0 }}>Pourquoi donner à TIBELE ?</h2>
             <p>
-              Chaque semaine, des etudiants utilisent TIBELE pour preparer leurs QCM, revoir des pathologies et avancer de maniere plus structuree.
-              Nous avons fait le choix d'une plateforme ouverte a tous: pas de blocage payant sur les contenus essentiels, pas de surprise pendant les revisions.
-            </p>
-            <p>
-              Votre don nous aide a payer l'hebergement, la maintenance technique, la moderation du forum et l'amelioration continue des contenus.
-              En soutenant TIBELE, vous contribuez a rendre la preparation plus equitable pour les etudiants en medecine, pharmacie, odontostomatologie, maieutique et autres filieres de sante.
+              TIBELE a été conçu pour offrir une plateforme pédagogique adaptée aux étudiants et professionnels de la santé.
+              Grâce à votre soutien, nous pouvons financer l’hébergement, les mises à jour de contenu et la stabilité du service.
             </p>
             <p>
-              Meme un petit montant a un impact concret: garder les serveurs stables pendant les periodes de forte affluence, corriger rapidement les bugs,
-              ajouter de nouvelles fonctionnalites et maintenir un espace d'entrainement moderne et pedagogique.
+              Votre don contribue directement à ce que les ressources restent accessibles, fiables et modernisées pour tous.
+              Il aide aussi à préserver un environnement sécurisé et modéré pour les échanges entre pairs.
             </p>
-
-            <a href={donationUrl} target="_blank" rel="noreferrer" className="btn-primary donate-btn-red" style={{ marginTop: '0.8rem' }}>
-              Je fais un don
-            </a>
-
-            <div className="section-shell" style={{ marginTop: '1rem' }}>
-              <h3 style={{ marginTop: 0 }}>Ce que votre soutien rend possible</h3>
-              <ul style={{ margin: 0, paddingLeft: '1.1rem', display: 'grid', gap: '0.45rem' }}>
-                <li>Un acces gratuit et continue aux entrainements.</li>
-                <li>Des corrections et mises a jour plus rapides.</li>
-                <li>Une meilleure qualite de service sur mobile et desktop.</li>
-                <li>Un espace communautaire plus sain grace a la moderation.</li>
-              </ul>
-            </div>
-
-            <p style={{ marginTop: '1rem' }}>
-              Merci pour votre confiance. Si TIBELE vous aide aujourd'hui, votre don peut aider des centaines d'autres etudiants demain.
-              Ensemble, nous pouvons construire une plateforme de reference pour la reussite academique en sciences de la sante.
-            </p>
-
-            <a href={donationUrl} target="_blank" rel="noreferrer" className="btn-primary donate-btn-red" style={{ marginTop: '0.4rem' }}>
-              Je fais un don
-            </a>
           </div>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Votre contribution en pratique</h2>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'grid', gap: '0.6rem' }}>
+              <li>Maintenir les serveurs performants pendant les pics de trafic.</li>
+              <li>Assurer la maintenance technique et la sécurité du site.</li>
+              <li>Aider à enrichir les contenus pédagogiques et les quiz.</li>
+              <li>Renforcer la modération pour un forum de qualité.</li>
+            </ul>
+          </div>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h2>Notre promesse</h2>
+            <p>
+              Même un petit montant fait la différence. Il permet de garder TIBELE accessible, de réduire les interruptions et d’améliorer l’expérience pour tous.
+            </p>
+            <p>
+              Nous nous engageons à utiliser votre soutien pour développer une plateforme durable, utile et respectueuse des besoins des étudiants en santé.
+            </p>
+          </div>
+
+          <a href={donationUrl} target="_blank" rel="noreferrer" className="btn-primary donate-btn-red" style={{ marginTop: '1rem' }}>
+            Je fais un don
+          </a>
+
+          <div className="section-shell" style={{ marginTop: '1rem' }}>
+            <h3 style={{ marginTop: 0 }}>Impact de votre soutien</h3>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', display: 'grid', gap: '0.6rem' }}>
+              <li>Conserver des contenus gratuits pour les étudiants.</li>
+              <li>Accélérer la correction et l’ajout de nouvelles ressources.</li>
+              <li>Améliorer le service mobile et la disponibilité globale.</li>
+              <li>Permettre des actions pédagogiques et communautaires durables.</li>
+            </ul>
+          </div>
+
+          <a href={donationUrl} target="_blank" rel="noreferrer" className="btn-primary donate-btn-red" style={{ marginTop: '0.8rem' }}>
+            Soutenir maintenant
+          </a>
         </div>
       </section>
     </main>
