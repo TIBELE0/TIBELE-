@@ -2,7 +2,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
-import { isOriginAllowed } from './config/security';
 import { validateBackendStartupConfig } from './config/startupChecks';
 import { csrfProtection } from './middleware/csrf';
 import { maintenanceModeGuard } from './middleware/settings';
@@ -21,22 +20,9 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
 
   app.set('trust proxy', 1);
   app.use(helmet());
-  app.use(cors({
-    origin(origin, callback) {
-      if (isOriginAllowed(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(new Error(`CORS origin not allowed: ${origin ?? 'unknown'}`));
-    },
-    credentials: true,
-    methods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    optionsSuccessStatus: 204,
-  }));
   app.use(cookieParser());
   app.use(express.json());
+  app.use(cors());
   app.use(express.urlencoded({ extended: true }));
   app.use(csrfProtection);
   app.use(maintenanceModeGuard);

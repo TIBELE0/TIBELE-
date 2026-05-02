@@ -1,17 +1,17 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL || '/api';
 
 const validateFrontendRuntimeConfig = () => {
   const issues: string[] = [];
   const warnings: string[] = [];
 
   if (!API_URL) {
-    issues.push('VITE_API_URL est vide.');
+    issues.push('REACT_APP_API_URL/VITE_API_URL est vide.');
   }
 
   if (!API_URL.startsWith('/api')) {
-    warnings.push(`VITE_API_URL utilise une URL absolue (${API_URL}).`);
+    warnings.push(`REACT_APP_API_URL/VITE_API_URL utilise une URL absolue (${API_URL}).`);
 
     if (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname) && API_URL.includes('localhost')) {
       warnings.push('URL API absolue sur localhost detectee hors localhost: preferer /api pour les environnements distants (codespaces/proxy).');
