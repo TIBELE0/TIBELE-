@@ -22,7 +22,10 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
   app.use(helmet());
   app.use(cookieParser());
   app.use(express.json());
-  app.use(cors());
+  app.use(cors({
+    origin: 'https://tibele.onrender.com',
+    credentials: true,
+  }));
   app.use(express.urlencoded({ extended: true }));
   app.use(csrfProtection);
   app.use(maintenanceModeGuard);
