@@ -24,6 +24,8 @@ CREATE TABLE "public"."User" (
     "school" TEXT NOT NULL,
     "studyYear" TEXT,
     "major" TEXT NOT NULL,
+    "category" TEXT,
+    "profession" TEXT,
     "matriculeValidated" BOOLEAN NOT NULL DEFAULT false,
     "isBanned" BOOLEAN NOT NULL DEFAULT false,
     "role" "public"."UserRole" NOT NULL DEFAULT 'user',
