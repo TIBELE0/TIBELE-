@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Express } from 'express';
+import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
 import { validateBackendStartupConfig } from './config/startupChecks';
 import { csrfProtection } from './middleware/csrf';
@@ -36,7 +36,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
   app.use('/api/questions', questionRoutes);
   app.use('/api/admin', adminRoutes);
 
-  app.get('/', (_req, res) => {
+  app.get('/', (_req: Request, res: Response) => {
     res.json({
       name: 'TIBELE API',
       status: 'running',
@@ -44,11 +44,11 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     });
   });
 
-  app.get('/api/health', (_req, res) => {
+  app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
   });
 
-  app.get('/api/settings/public', async (_req, res) => {
+  app.get('/api/settings/public', async (_req: Request, res: Response) => {
     try {
       const settings = await prisma.siteSetting.upsert({
         where: { key: 'global' },
@@ -84,7 +84,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     }
   });
 
-  app.get('/api/stats/public', async (_req, res) => {
+  app.get('/api/stats/public', async (_req: Request, res: Response) => {
     try {
       const [pathologiesCount, questionsCount, usersCount, topicsCount] = await Promise.all([
         prisma.pathology.count(),
@@ -104,7 +104,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     }
   });
 
-  app.get('/api/ready', (_req, res) => {
+  app.get('/api/ready', (_req: Request, res: Response) => {
     const postgresConnected = true;
     const configOk = startupReport.ok;
     const ready = postgresConnected && configOk;
