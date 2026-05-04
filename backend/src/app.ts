@@ -30,7 +30,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
   app.use(csrfProtection);
   app.use(maintenanceModeGuard);
 
-  app.use('/api/auth', authRoutes);
+  app.use('/auth', authRoutes);
   app.use('/api/pathologies', pathologyRoutes);
   app.use('/api/forum', forumRoutes);
   app.use('/api/questions', questionRoutes);
