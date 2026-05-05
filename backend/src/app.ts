@@ -56,7 +56,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
         create: {
           key: 'global',
           siteName: 'TIBELE Admin',
-          supportEmail: 'tibeleyeo@gmail.com,
+          supportEmail: 'tibeleyeo@gmail.com',
           maintenanceMode: false,
           registrationsOpen: true,
           messageMaintenance: 'Maintenance en cours. Merci de revenir plus tard.',
