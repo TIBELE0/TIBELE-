@@ -31,24 +31,24 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
   app.use(maintenanceModeGuard);
 
   app.use('/auth', authRoutes);
-  app.use('/api/pathologies', pathologyRoutes);
-  app.use('/api/forum', forumRoutes);
-  app.use('/api/questions', questionRoutes);
-  app.use('/api/admin', adminRoutes);
+  app.use('/pathologies', pathologyRoutes);
+  app.use('/forum', forumRoutes);
+  app.use('/questions', questionRoutes);
+  app.use('/admin', adminRoutes);
 
   app.get('/', (_req: Request, res: Response) => {
     res.json({
       name: 'TIBELE API',
       status: 'running',
-      health: '/api/health',
+      health: '/health',
     });
   });
 
-  app.get('/api/health', (_req: Request, res: Response) => {
+  app.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
   });
 
-  app.get('/api/settings/public', async (_req: Request, res: Response) => {
+  app.get('/settings/public', async (_req: Request, res: Response) => {
     try {
       const settings = await prisma.siteSetting.upsert({
         where: { key: 'global' },
@@ -56,7 +56,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
         create: {
           key: 'global',
           siteName: 'TIBELE Admin',
-          supportEmail: 'support@tibele.local',
+          supportEmail: 'tibeleyeo@gmail.com,
           maintenanceMode: false,
           registrationsOpen: true,
           messageMaintenance: 'Maintenance en cours. Merci de revenir plus tard.',
@@ -84,7 +84,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     }
   });
 
-  app.get('/api/stats/public', async (_req: Request, res: Response) => {
+  app.get('/stats/public', async (_req: Request, res: Response) => {
     try {
       const [pathologiesCount, questionsCount, usersCount, topicsCount] = await Promise.all([
         prisma.pathology.count(),
@@ -104,7 +104,7 @@ export const createApp = (): { app: Express; startupReport: ReturnType<typeof va
     }
   });
 
-  app.get('/api/ready', (_req: Request, res: Response) => {
+  app.get('/ready', (_req: Request, res: Response) => {
     const postgresConnected = true;
     const configOk = startupReport.ok;
     const ready = postgresConnected && configOk;
